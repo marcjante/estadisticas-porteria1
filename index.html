@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title> Estadísticas Completas</title>
+    <title>Estadísticas Completas de Portería</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js para gráficas (solo para PDF) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -532,13 +530,9 @@
         }
         
         .pdf-btn {
-            background-color: #7c3aed;
+            background: linear-gradient(to right, #7c3aed, #6d28d9);
             color: white;
-        }
-        
-        .email-btn {
-            background-color: #ea580c;
-            color: white;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
         }
         
         .global-btn:hover {
@@ -546,86 +540,10 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
-        /* Modal para email */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-title {
-            font-size: 1.2rem;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            color: #2c3e50;
-            font-weight: bold;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-        }
-        
-        .form-input:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .modal-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        
-        .modal-btn.cancel {
-            background-color: #6b7280;
-            color: white;
-        }
-        
-        .modal-btn.send {
-            background-color: #059669;
-            color: white;
+        .pdf-btn:hover {
+            background: linear-gradient(to right, #6d28d9, #5b21b6);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(124, 58, 237, 0.4);
         }
         
         /* Tabla de estadísticas de jugadores */
@@ -653,32 +571,15 @@
             background-color: #f8f9fa;
         }
         
-        /* Ocultar sección de gráficas en web */
-        .charts-section {
-            display: none;
+        /* Fila de totales */
+        .players-stats-table tr.totals-row {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
         }
         
-        /* Previsualización PDF */
-        .pdf-preview {
-            display: none;
-            margin-top: 15px;
-            text-align: center;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border: 2px dashed #7c3aed;
-        }
-        
-        .pdf-preview h3 {
-            color: #7c3aed;
-            margin-bottom: 10px;
-        }
-        
-        .pdf-preview iframe {
-            width: 100%;
-            height: 400px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        .players-stats-table tr.totals-row td {
+            border-bottom: none;
         }
         
         footer {
@@ -708,13 +609,22 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
+        
+        /* Estilo para mensajes de error */
+        .error-message {
+            color: #dc2626;
+            font-size: 0.7rem;
+            margin-top: 5px;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-futbol"></i> Estadísticas Completas</h1>
-            <p class="subtitle">Defensa (Portero) y Ataque (Jugadores)</p>
+            <h1><i class="fas fa-futbol"></i> Estadísticas Completas de Portería</h1>
+            <p class="subtitle">Defensa y Ataque </p>
         </header>
         
         <div class="content">
@@ -724,7 +634,7 @@
                 <div class="goal-section defense">
                     <div class="goal-section-header">
                         <i class="fas fa-shield-alt" style="color: #3498db; font-size: 1.2rem;"></i>
-                        <div class="goal-section-title defense">PORTERO</div>
+                        <div class="goal-section-title defense">DEFENSA </div>
                     </div>
                     
                     <div class="goal-visual-container">
@@ -739,8 +649,6 @@
                         <button id="outside-btn-defense" class="outside-btn">
                             <i class="fas fa-external-link-alt"></i> Tiro Fuera de Portería
                         </button>
-                        <div class="outside-info">Registra tiros que NO entran en la portería</div>
-                        
                         <div id="selection-info-defense" class="selection-info defense">
                             Selecciona una zona para registrar acción del portero
                         </div>
@@ -750,7 +658,7 @@
                                 <i class="fas fa-hand-paper"></i> Parada
                             </button>
                             <button id="goal-btn-defense" class="control-btn goal-btn">
-                                <i class="fas fa-bullseye"></i> Gol
+                                <i class="fas fa-bullseye"></i> Gol Recibido
                             </button>
                         </div>
                     </div>
@@ -760,7 +668,7 @@
                 <div class="goal-section attack">
                     <div class="goal-section-header">
                         <i class="fas fa-bullseye" style="color: #059669; font-size: 1.2rem;"></i>
-                        <div class="goal-section-title attack">JUGADORES</div>
+                        <div class="goal-section-title attack">ATAQUE </div>
                     </div>
                     
                     <div class="goal-visual-container">
@@ -775,8 +683,7 @@
                         <button id="outside-btn-attack" class="outside-btn">
                             <i class="fas fa-external-link-alt"></i> Tiro Fuera de Portería
                         </button>
-                        <div class="outside-info">Registra tiros que NO entran en la portería</div>
-                        
+        
                         <!-- Selector de jugadores -->
                         <div class="player-selector">
                             <div class="player-selector-container">
@@ -786,6 +693,7 @@
                                         <i class="fas fa-plus"></i> Agregar
                                     </button>
                                 </div>
+                                <div id="player-input-error" class="error-message"></div>
                                 
                                 <div class="player-buttons-container" id="player-buttons-container">
                                     <!-- Los botones de jugadores se agregarán dinámicamente -->
@@ -816,44 +724,24 @@
             <!-- Controles globales -->
             <div class="global-controls">
                 <button id="reset-btn" class="global-btn reset-btn">
-                    <i class="fas fa-undo"></i> Reset Zona
+                    <i class="fas fa-undo"></i> Eliminar Última Acción
                 </button>
                 <button id="pdf-btn" class="global-btn pdf-btn">
                     <i class="fas fa-file-pdf"></i> Generar PDF
                 </button>
-                <button id="email-btn" class="global-btn email-btn">
-                    <i class="fas fa-paper-plane"></i> Enviar por Email
-                </button>
             </div>
             
-            <!-- Previsualización PDF (Opcional) -->
-            <div id="pdf-preview" class="pdf-preview">
-                <h3><i class="fas fa-eye"></i> Vista Previa del PDF</h3>
-                <iframe id="pdf-viewer" src="" style="display: none;"></iframe>
-                <div id="pdf-info">
-                    <p>PDF generado exitosamente. Haz clic en "Descargar PDF" para guardarlo o "Enviar por Email" para compartirlo.</p>
-                    <div class="global-controls" style="margin-top: 10px;">
-                        <button id="download-pdf-btn" class="global-btn pdf-btn">
-                            <i class="fas fa-download"></i> Descargar PDF
-                        </button>
-                        <button id="share-pdf-btn" class="global-btn email-btn">
-                            <i class="fas fa-share-alt"></i> Compartir
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Sección de Estadísticas -->
+            <!-- Sección de Estadísticas del Portero (PRIMERA) -->
             <div class="section">
                 <div class="section-title">
-                    <i class="fas fa-chart-bar"></i> Estadísticas
+                    <i class="fas fa-chart-bar"></i> Estadísticas del Portero
                 </div>
                 
                 <div class="stats-container">
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-value" id="total-saves">0</div>
-                            <div class="stat-label">Paradas Portero</div>
+                            <div class="stat-label">Paradas</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="total-goals-defense">0</div>
@@ -865,27 +753,16 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="effectiveness">0%</div>
-                            <div class="stat-label">Efectividad Portero</div>
+                            <div class="stat-label">Efectividad</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Sección de Eventos -->
-            <div class="section">
-                <div class="section-title">
-                    <i class="fas fa-list-alt"></i> Eventos del Partido
-                </div>
-                
-                <div id="events-list">
-                    <!-- Los eventos se agregarán con JavaScript -->
-                </div>
-            </div>
-            
-            <!-- Sección de Estadísticas de Jugadores -->
+            <!-- Sección de Estadísticas de Jugadores (SEGUNDA) -->
             <div class="section" id="players-stats-section">
                 <div class="section-title">
-                    <i class="fas fa-users"></i> Estadísticas por Jugador 
+                    <i class="fas fa-users"></i> Estadísticas por Jugador (Ataque)
                 </div>
                 
                 <div class="stats-container">
@@ -903,64 +780,32 @@
                         <tbody id="players-stats-body">
                             <!-- Las filas se generarán con JavaScript -->
                         </tbody>
+                        <tfoot id="players-stats-totals">
+                            <!-- Fila de totales se generará con JavaScript -->
+                        </tfoot>
                     </table>
                 </div>
             </div>
             
-            <!-- Sección de Gráficas (OCULTA en web, visible solo en PDF) -->
-            <div class="section charts-section">
+            <!-- Sección de Eventos (TERCERA) -->
+            <div class="section" id="events-section">
                 <div class="section-title">
-                    <i class="fas fa-chart-pie"></i> Gráficas de Estadísticas 
+                    <i class="fas fa-list-alt"></i> Eventos del Partido
                 </div>
                 
-                <!-- Contenedores para gráficas que se usarán en PDF -->
-                <div id="pdf-charts" style="display: none;">
-                    <canvas id="shotsChartPDF"></canvas>
-                    <canvas id="zoneEffectivenessChartPDF"></canvas>
-                    <canvas id="playersChartPDF"></canvas>
-                    <canvas id="heatmapChartPDF"></canvas>
+                <div id="events-list">
+                    <!-- Los eventos se agregarán con JavaScript -->
                 </div>
             </div>
         </div>
         
         <footer>
-            <p>Hoquei Palau Solita i Plegamants</p>
+            <p>Hoquei Palau Solita i Plegamants | Sistema de Análisis Táctico</p>
         </footer>
     </div>
 
-    <!-- Modal para enviar por email -->
-    <div id="email-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title">
-                <i class="fas fa-paper-plane"></i> Enviar Estadísticas por Email
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="email-to">Email Destinatario:</label>
-                <input type="email" id="email-to" class="form-input" placeholder="ejemplo@correo.com" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="email-subject">Asunto:</label>
-                <input type="text" id="email-subject" class="form-input" value="Estadísticas de Portería - Reporte" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="email-message">Mensaje:</label>
-                <textarea id="email-message" class="form-input" rows="4" placeholder="Mensaje opcional..."></textarea>
-            </div>
-            
-            <div class="modal-buttons">
-                <button id="cancel-email-btn" class="modal-btn cancel">Cancelar</button>
-                <button id="send-email-btn" class="modal-btn send">Enviar Email</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Incluir jsPDF para generación de PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- Incluir html2canvas para capturar elementos HTML -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Cargar jsPDF desde un CDN diferente y más simple -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
     
     <script>
         // ---------- VARIABLES GLOBALES ----------
@@ -1008,15 +853,22 @@
             
             events: [],
             playerNumbers: [], // Para almacenar los números de jugadores agregados
-            
-            // Variables para PDF
-            lastGeneratedPDF: null,
-            pdfBlob: null
         };
 
         // ---------- FUNCIONES UTILITARIAS ----------
         function $(id) {
             return document.getElementById(id);
+        }
+
+        function showError(elementId, message) {
+            const errorElement = $(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                }, 3000);
+            }
         }
 
         function addEventMessage(message) {
@@ -1031,7 +883,8 @@
         function getCurrentTime() {
             const now = new Date();
             const minutes = now.getMinutes().toString().padStart(2, '0');
-            return `${now.getHours()}:${minutes}`;
+            const hours = now.getHours().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
         }
 
         // ---------- CREAR PORTERÍAS VISUALES ----------
@@ -1043,6 +896,8 @@
         function createGoalVisual(mode) {
             const goalGrid = $(`goal-grid-${mode}`);
             const zoneButtons = $(`zone-buttons-${mode}`);
+            
+            if (!goalGrid || !zoneButtons) return;
             
             goalGrid.innerHTML = "";
             zoneButtons.innerHTML = "";
@@ -1138,18 +993,23 @@
             const playerNumber = input.value.trim();
             
             if (!playerNumber) {
-                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Error: Introduce un número de jugador</span>`);
+                showError('player-input-error', 'Introduce un número de jugador');
+                return;
+            }
+            
+            if (isNaN(playerNumber) || parseInt(playerNumber) < 1 || parseInt(playerNumber) > 99) {
+                showError('player-input-error', 'Número inválido (1-99)');
                 return;
             }
             
             if (state.playerNumbers.includes(playerNumber)) {
-                addEventMessage(`<span style="color: #f59e0b"><i class="fas fa-exclamation-triangle"></i> El jugador ${playerNumber} ya está agregado</span>`);
+                showError('player-input-error', `El jugador ${playerNumber} ya está agregado`);
                 input.value = "";
                 return;
             }
             
             if (state.playerNumbers.length >= 8) {
-                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Error: Máximo 8 jugadores permitidos</span>`);
+                showError('player-input-error', 'Máximo 8 jugadores permitidos');
                 return;
             }
             
@@ -1174,6 +1034,8 @@
         
         function createPlayerButton(playerNumber) {
             const container = $("player-buttons-container");
+            
+            if (!container) return;
             
             if (document.querySelector(`.player-btn[data-player="${playerNumber}"]`)) return;
             
@@ -1205,7 +1067,9 @@
         
         function updatePlayerStats() {
             const statsBody = $("players-stats-body");
-            if (!statsBody) return;
+            const totalsRow = $("players-stats-totals");
+            
+            if (!statsBody || !totalsRow) return;
             
             statsBody.innerHTML = "";
             
@@ -1215,20 +1079,32 @@
                 return numA - numB;
             });
             
+            // Variables para calcular totales
+            let totalShots = 0;
+            let totalGoals = 0;
+            let totalSaves = 0;
+            let totalMisses = 0;
+            
             playerIds.forEach(playerId => {
                 const playerStats = state.attackersStats.players[playerId];
                 if (!playerStats) return;
                 
-                const totalShots = playerStats.shots;
-                const goals = playerStats.goals;
-                const saves = playerStats.saves;
-                const misses = playerStats.misses;
-                const accuracy = totalShots > 0 ? Math.round((goals / totalShots) * 100) : 0;
+                const shots = playerStats.shots || 0;
+                const goals = playerStats.goals || 0;
+                const saves = playerStats.saves || 0;
+                const misses = playerStats.misses || 0;
+                const accuracy = shots > 0 ? Math.round((goals / shots) * 100) : 0;
+                
+                // Sumar a totales
+                totalShots += shots;
+                totalGoals += goals;
+                totalSaves += saves;
+                totalMisses += misses;
                 
                 const row = document.createElement("tr");
                 
                 let playerClass = "";
-                if (playerStats.shots > 0) {
+                if (shots > 0) {
                     if (accuracy >= 50) playerClass = "goal";
                     else if (accuracy >= 30) playerClass = "save";
                     else playerClass = "miss";
@@ -1236,7 +1112,7 @@
                 
                 row.innerHTML = `
                     <td><span class="player-btn ${playerClass}" style="width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;">${playerId}</span></td>
-                    <td>${totalShots}</td>
+                    <td>${shots}</td>
                     <td>${goals}</td>
                     <td>${saves}</td>
                     <td>${misses}</td>
@@ -1245,6 +1121,21 @@
                 
                 statsBody.appendChild(row);
             });
+            
+            // Calcular precisión total
+            const totalAccuracy = totalShots > 0 ? Math.round((totalGoals / totalShots) * 100) : 0;
+            
+            // Actualizar fila de totales
+            totalsRow.innerHTML = `
+                <tr class="totals-row">
+                    <td><strong>TOTAL</strong></td>
+                    <td><strong>${totalShots}</strong></td>
+                    <td><strong>${totalGoals}</strong></td>
+                    <td><strong>${totalSaves}</strong></td>
+                    <td><strong>${totalMisses}</strong></td>
+                    <td><strong>${totalAccuracy}%</strong></td>
+                </tr>
+            `;
         }
         
         // ---------- REGISTRO DE ACCIONES ----------
@@ -1326,6 +1217,11 @@
                 const playerId = state.selectedPlayer;
                 const playerStats = state.attackersStats.players[playerId];
                 
+                if (!playerStats) {
+                    addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Error: Jugador no encontrado</span>`);
+                    return;
+                }
+                
                 playerStats.shots++;
                 playerStats.misses++;
                 
@@ -1365,6 +1261,11 @@
             const zone = state.attackSelectedZone;
             const playerId = state.selectedPlayer;
             const playerStats = state.attackersStats.players[playerId];
+            
+            if (!playerStats) {
+                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Error: Jugador no encontrado</span>`);
+                return;
+            }
             
             playerStats.shots++;
             
@@ -1427,238 +1328,143 @@
             $("effectiveness").textContent = `${effectiveness}%`;
         }
         
-        function resetZoneAction() {
-            let zoneToReset = null;
-            let modeToReset = null;
-            
-            if (state.defenseSelectedZone) {
-                zoneToReset = state.defenseSelectedZone;
-                modeToReset = 'defense';
-            } else if (state.attackSelectedZone) {
-                zoneToReset = state.attackSelectedZone;
-                modeToReset = 'attack';
-            } else {
-                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Error: Selecciona una zona para resetear</span>`);
+        function resetLastAction() {
+            if (state.events.length === 0) {
+                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> No hay acciones para eliminar</span>`);
                 return;
             }
             
-            for (let i = state.events.length - 1; i >= 0; i--) {
-                if (state.events[i].zone === zoneToReset && 
-                   ((modeToReset === 'defense' && state.events[i].mode === 'defense') ||
-                    (modeToReset === 'attack' && state.events[i].mode === 'attack'))) {
-                    
-                    const event = state.events[i];
-                    
-                    if (event.mode === 'defense') {
-                        if (event.actionType === 'save') {
-                            state.goalkeeperStats.zones[zoneToReset].saves--;
-                            state.goalkeeperStats.totalSaves--;
-                        } else if (event.actionType === 'goal') {
-                            state.goalkeeperStats.zones[zoneToReset].goals--;
-                            state.goalkeeperStats.totalGoals--;
-                        } else if (event.actionType === 'miss') {
-                            state.goalkeeperStats.totalMisses--;
-                        }
-                    } else {
-                        const playerId = event.playerName.replace('Jugador ', '');
-                        const playerStats = state.attackersStats.players[playerId];
-                        
-                        if (playerStats) {
-                            playerStats.shots--;
-                            
-                            if (event.actionType === 'goal') {
-                                playerStats.goals--;
-                                state.attackersStats.zones[zoneToReset].goals--;
-                                state.attackersStats.zones[zoneToReset].shots--;
-                            } else if (event.actionType === 'save') {
-                                playerStats.saves--;
-                                state.attackersStats.zones[zoneToReset].shots--;
-                            } else if (event.actionType === 'miss') {
-                                playerStats.misses--;
-                            }
-                        }
+            const lastEvent = state.events[state.events.length - 1];
+            
+            // Revertir estadísticas según el tipo de evento
+            if (lastEvent.mode === 'defense') {
+                if (lastEvent.zone === 'FUERA') {
+                    state.goalkeeperStats.totalMisses--;
+                } else {
+                    const zone = lastEvent.zone;
+                    if (lastEvent.actionType === 'save') {
+                        state.goalkeeperStats.zones[zone].saves--;
+                        state.goalkeeperStats.totalSaves--;
+                    } else if (lastEvent.actionType === 'goal') {
+                        state.goalkeeperStats.zones[zone].goals--;
+                        state.goalkeeperStats.totalGoals--;
                     }
                     
-                    state.events.splice(i, 1);
-                    updateZoneStats(modeToReset);
-                    updateGoalkeeperStats();
-                    updatePlayerStats();
-                    
-                    const zoneDiv = document.querySelector(`#zone-${modeToReset}-${zoneToReset}`);
+                    // Limpiar resaltado de zona
+                    const zoneDiv = document.querySelector(`#zone-defense-${zone}`);
                     if (zoneDiv) zoneDiv.classList.remove('active-goal', 'active-save', 'active-miss');
-                    
-                    addEventMessage(`<span style="color: #6b7280"><i class="fas fa-undo"></i> Acción en zona ${zoneToReset} (${modeToReset}) eliminada</span>`);
-                    break;
                 }
+                updateZoneStats('defense');
+                updateGoalkeeperStats();
+                
+            } else if (lastEvent.mode === 'attack') {
+                if (lastEvent.zone === 'FUERA') {
+                    const playerId = lastEvent.playerName.replace('Jugador ', '');
+                    const playerStats = state.attackersStats.players[playerId];
+                    if (playerStats) {
+                        playerStats.shots--;
+                        playerStats.misses--;
+                    }
+                } else {
+                    const zone = lastEvent.zone;
+                    const playerId = lastEvent.playerName.replace('Jugador ', '');
+                    const playerStats = state.attackersStats.players[playerId];
+                    
+                    if (playerStats) {
+                        playerStats.shots--;
+                        
+                        if (lastEvent.actionType === 'goal') {
+                            playerStats.goals--;
+                            state.attackersStats.zones[zone].goals--;
+                            state.attackersStats.zones[zone].shots--;
+                        } else if (lastEvent.actionType === 'save') {
+                            playerStats.saves--;
+                            state.attackersStats.zones[zone].shots--;
+                        }
+                        
+                        // Limpiar resaltado de zona
+                        const zoneDiv = document.querySelector(`#zone-attack-${zone}`);
+                        if (zoneDiv) zoneDiv.classList.remove('active-goal', 'active-save', 'active-miss');
+                        
+                        // Actualizar botón del jugador
+                        const playerBtn = document.querySelector(`.player-btn[data-player="${playerId}"]`);
+                        if (playerBtn) {
+                            playerBtn.classList.remove('goal', 'save', 'miss');
+                        }
+                    }
+                }
+                updateZoneStats('attack');
+                updatePlayerStats();
             }
+            
+            // Eliminar evento
+            state.events.pop();
+            
+            // Eliminar mensaje de la lista de eventos
+            const eventsList = $("events-list");
+            if (eventsList.children.length > 0) {
+                eventsList.removeChild(eventsList.lastChild);
+            }
+            
+            addEventMessage(`<span style="color: #6b7280"><i class="fas fa-undo"></i> Última acción eliminada</span>`);
         }
         
-        // ---------- GENERACIÓN DE PDF CON GRÁFICAS ----------
+        // ---------- GENERACIÓN DE PDF SIMPLIFICADA ----------
         function generatePDF() {
-            addEventMessage(`<span style="color: #7c3aed"><i class="fas fa-spinner fa-spin"></i> Generando PDF con gráficas...</span>`);
+            if (state.goalkeeperStats.totalSaves === 0 && 
+                state.goalkeeperStats.totalGoals === 0 && 
+                state.goalkeeperStats.totalMisses === 0 &&
+                state.playerNumbers.length === 0) {
+                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> No hay datos para generar el PDF</span>`);
+                return;
+            }
             
-            setTimeout(() => {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'a4');
+            addEventMessage(`<span style="color: #7c3aed"><i class="fas fa-spinner fa-spin"></i> Generando PDF...</span>`);
+            
+            try {
+                // Crear un nuevo documento PDF
+                const doc = new jsPDF();
                 
-                // Configuración inicial
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                
-                // Título principal
-                doc.setFontSize(22);
+                // Título
+                doc.setFontSize(20);
                 doc.setTextColor(40, 53, 147);
-                doc.text("REPORTE DE ESTADÍSTICAS DE PORTERÍA", pageWidth / 2, 20, { align: "center" });
+                doc.text("REPORTE DE ESTADÍSTICAS DE PORTERÍA", 105, 20, null, null, "center");
                 
-                doc.setFontSize(12);
-                doc.setTextColor(100, 100, 100);
-                doc.text("Sistema de Análisis Táctico - Portero vs Ataque", pageWidth / 2, 27, { align: "center" });
-                
-                // Fecha y hora
+                // Fecha
                 const now = new Date();
-                const dateStr = now.toLocaleDateString('es-ES', { 
+                const fecha = now.toLocaleDateString('es-ES', { 
                     weekday: 'long', 
                     year: 'numeric', 
                     month: 'long', 
                     day: 'numeric' 
                 });
-                const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                
-                doc.setFontSize(10);
-                doc.setTextColor(70, 70, 70);
-                doc.text(`Generado el ${dateStr} a las ${timeStr}`, pageWidth / 2, 34, { align: "center" });
-                
-                // Línea separadora
-                doc.setDrawColor(200, 200, 200);
-                doc.line(10, 38, pageWidth - 10, 38);
-                
-                // ============ PRIMERA PÁGINA: RESUMEN Y GRÁFICAS ============
-                let yPos = 45;
-                
-                // Resumen de estadísticas
-                doc.setFontSize(16);
-                doc.setTextColor(0, 0, 0);
-                doc.text("RESUMEN DE ESTADÍSTICAS", 10, yPos);
-                yPos += 10;
+                const hora = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
                 
                 doc.setFontSize(11);
-                const totalSaves = state.goalkeeperStats.totalSaves;
-                const totalGoals = state.goalkeeperStats.totalGoals;
-                const totalMisses = state.goalkeeperStats.totalMisses;
-                const totalShots = totalSaves + totalGoals;
-                const effectiveness = totalShots > 0 ? Math.round((totalSaves / totalShots) * 100) : 0;
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Generado el ${fecha} a las ${hora}`, 105, 30, null, null, "center");
                 
-                // Estadísticas en cuadros
-                const statsBoxWidth = 45;
-                const statsBoxHeight = 20;
-                const statsSpacing = 10;
-                
-                // Cuadro 1: Paradas
-                doc.setFillColor(5, 150, 105);
-                doc.roundedRect(10, yPos, statsBoxWidth, statsBoxHeight, 3, 3, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(18);
-                doc.text(totalSaves.toString(), 10 + statsBoxWidth/2, yPos + 9, { align: "center" });
-                doc.setFontSize(8);
-                doc.text("PARADAS", 10 + statsBoxWidth/2, yPos + 15, { align: "center" });
-                
-                // Cuadro 2: Goles recibidos
-                doc.setFillColor(220, 38, 38);
-                doc.roundedRect(10 + statsBoxWidth + statsSpacing, yPos, statsBoxWidth, statsBoxHeight, 3, 3, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(18);
-                doc.text(totalGoals.toString(), 10 + statsBoxWidth + statsSpacing + statsBoxWidth/2, yPos + 9, { align: "center" });
-                doc.setFontSize(8);
-                doc.text("GOLES RECIBIDOS", 10 + statsBoxWidth + statsSpacing + statsBoxWidth/2, yPos + 15, { align: "center" });
-                
-                // Cuadro 3: Tiros fuera
-                doc.setFillColor(245, 158, 11);
-                doc.roundedRect(10 + (statsBoxWidth + statsSpacing) * 2, yPos, statsBoxWidth, statsBoxHeight, 3, 3, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(18);
-                doc.text(totalMisses.toString(), 10 + (statsBoxWidth + statsSpacing) * 2 + statsBoxWidth/2, yPos + 9, { align: "center" });
-                doc.setFontSize(8);
-                doc.text("TIROS FUERA", 10 + (statsBoxWidth + statsSpacing) * 2 + statsBoxWidth/2, yPos + 15, { align: "center" });
-                
-                // Cuadro 4: Efectividad
-                doc.setFillColor(52, 152, 219);
-                doc.roundedRect(10 + (statsBoxWidth + statsSpacing) * 3, yPos, statsBoxWidth, statsBoxHeight, 3, 3, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(18);
-                doc.text(`${effectiveness}%`, 10 + (statsBoxWidth + statsSpacing) * 3 + statsBoxWidth/2, yPos + 9, { align: "center" });
-                doc.setFontSize(8);
-                doc.text("EFECTIVIDAD", 10 + (statsBoxWidth + statsSpacing) * 3 + statsBoxWidth/2, yPos + 15, { align: "center" });
-                
-                yPos += statsBoxHeight + 15;
-                
-                // ============ GRÁFICAS AUTOMÁTICAS ============
+                // Estadísticas del portero
                 doc.setFontSize(16);
                 doc.setTextColor(0, 0, 0);
-                doc.text("GRÁFICAS DE ANÁLISIS", 10, yPos);
-                yPos += 8;
+                doc.text("ESTADÍSTICAS DEL PORTERO", 20, 45);
                 
-                // Crear gráficas dinámicamente
-                const chartsData = generateChartsData();
+                doc.setFontSize(12);
+                doc.text(`Paradas: ${state.goalkeeperStats.totalSaves}`, 20, 55);
+                doc.text(`Goles Recibidos: ${state.goalkeeperStats.totalGoals}`, 20, 62);
+                doc.text(`Tiros Fuera: ${state.goalkeeperStats.totalMisses}`, 20, 69);
                 
-                // Gráfica 1: Distribución de tiros (Portero)
-                const chart1Canvas = createChartCanvas('pie', chartsData.shotsDistribution, 
-                    ['Paradas', 'Goles Recibidos', 'Tiros Fuera'], 
-                    ['#059669', '#dc2626', '#f59e0b'],
-                    'Distribución de Tiros (Portero)');
+                const totalShots = state.goalkeeperStats.totalSaves + state.goalkeeperStats.totalGoals;
+                const effectiveness = totalShots > 0 ? Math.round((state.goalkeeperStats.totalSaves / totalShots) * 100) : 0;
+                doc.text(`Efectividad: ${effectiveness}%`, 20, 76);
                 
-                const chart1Img = chart1Canvas.toDataURL('image/png');
-                doc.addImage(chart1Img, 'PNG', 10, yPos, 90, 60);
+                // Tabla de zonas
+                doc.setFontSize(14);
+                doc.text("ESTADÍSTICAS POR ZONA (Portero)", 20, 90);
                 
-                // Gráfica 2: Efectividad por zona
-                const chart2Canvas = createChartCanvas('bar', chartsData.zoneEffectiveness, 
-                    chartsData.zoneLabels, ['#3498db'], 'Efectividad por Zona (%)');
-                
-                const chart2Img = chart2Canvas.toDataURL('image/png');
-                doc.addImage(chart2Img, 'PNG', pageWidth - 100, yPos, 90, 60);
-                
-                yPos += 65;
-                
-                // Gráfica 3: Rendimiento de jugadores (si hay)
-                if (chartsData.playersData.length > 0) {
-                    const chart3Canvas = createChartCanvas('horizontalBar', chartsData.playersData, 
-                        chartsData.playersLabels, ['#059669'], 'Goles por Jugador');
-                    
-                    const chart3Img = chart3Canvas.toDataURL('image/png');
-                    doc.addImage(chart3Img, 'PNG', 10, yPos, 180, 70);
-                    
-                    yPos += 75;
-                }
-                
-                // Si no hay espacio, crear nueva página
-                if (yPos > pageHeight - 30) {
-                    doc.addPage();
-                    yPos = 20;
-                }
-                
-                // ============ SEGUNDA SECCIÓN: ESTADÍSTICAS DETALLADAS ============
-                doc.setFontSize(16);
-                doc.text("ESTADÍSTICAS DETALLADAS POR ZONA", 10, yPos);
-                yPos += 10;
-                
-                // Tabla de zonas del portero
-                doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-                
-                // Encabezado de tabla
-                doc.setFillColor(52, 152, 219);
-                doc.rect(10, yPos, pageWidth - 20, 8, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.text("Zona", 15, yPos + 6);
-                doc.text("Paradas", 50, yPos + 6);
-                doc.text("Goles", 85, yPos + 6);
-                doc.text("Total", 120, yPos + 6);
-                doc.text("Efectividad", 155, yPos + 6);
-                
-                yPos += 8;
-                doc.setTextColor(0, 0, 0);
-                
-                // Filas de datos
+                let yPos = 100;
                 const zones = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'];
+                
                 zones.forEach((zone, index) => {
                     const stats = state.goalkeeperStats.zones[zone];
                     const saves = stats.saves || 0;
@@ -1666,316 +1472,111 @@
                     const total = saves + goals;
                     const eff = total > 0 ? Math.round((saves / total) * 100) : 0;
                     
-                    // Fondo alternado
-                    if (index % 2 === 0) {
-                        doc.setFillColor(240, 240, 240);
-                        doc.rect(10, yPos, pageWidth - 20, 6, 'F');
+                    if (index % 3 === 0 && index !== 0) {
+                        yPos += 20;
                     }
                     
-                    doc.text(zone, 15, yPos + 4.5);
-                    doc.text(saves.toString(), 50, yPos + 4.5);
-                    doc.text(goals.toString(), 85, yPos + 4.5);
-                    doc.text(total.toString(), 120, yPos + 4.5);
-                    doc.text(`${eff}%`, 155, yPos + 4.5);
+                    const xPos = 20 + (index % 3) * 60;
                     
-                    yPos += 6;
+                    doc.setFontSize(10);
+                    doc.text(`${zone}: ${saves}/${total} (${eff}%)`, xPos, yPos);
                 });
                 
-                yPos += 10;
+                yPos += 25;
                 
-                // ============ TERCERA SECCIÓN: JUGADORES ============
+                // Estadísticas de jugadores si existen
                 if (state.playerNumbers.length > 0) {
-                    if (yPos > pageHeight - 50) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
-                    
                     doc.setFontSize(16);
-                    doc.text("ESTADÍSTICAS POR JUGADOR (ATAQUE)", 10, yPos);
+                    doc.text("ESTADÍSTICAS DE JUGADORES (Ataque)", 20, yPos);
                     yPos += 10;
                     
-                    // Encabezado de tabla de jugadores
+                    // Encabezados de tabla
                     doc.setFontSize(10);
-                    doc.setFillColor(5, 150, 105);
-                    doc.rect(10, yPos, pageWidth - 20, 8, 'F');
-                    doc.setTextColor(255, 255, 255);
-                    doc.text("Jugador", 15, yPos + 6);
-                    doc.text("Tiros", 45, yPos + 6);
-                    doc.text("Goles", 75, yPos + 6);
-                    doc.text("Parados", 105, yPos + 6);
-                    doc.text("Fuera", 135, yPos + 6);
-                    doc.text("% Acierto", 165, yPos + 6);
+                    doc.setDrawColor(0, 0, 0);
+                    doc.line(20, yPos, 190, yPos);
+                    yPos += 5;
+                    
+                    doc.setFont("helvetica", "bold");
+                    doc.text("Jugador", 25, yPos);
+                    doc.text("Tiros", 60, yPos);
+                    doc.text("Goles", 85, yPos);
+                    doc.text("Parados", 110, yPos);
+                    doc.text("Fuera", 140, yPos);
+                    doc.text("% Acierto", 165, yPos);
                     
                     yPos += 8;
-                    doc.setTextColor(0, 0, 0);
+                    doc.setFont("helvetica", "normal");
                     
-                    // Ordenar jugadores
+                    // Variables para totales
+                    let totalPlayerShots = 0;
+                    let totalPlayerGoals = 0;
+                    let totalPlayerSaves = 0;
+                    let totalPlayerMisses = 0;
+                    
+                    // Filas de jugadores
                     const playerIds = state.playerNumbers.sort((a, b) => {
                         const numA = parseInt(a) || 0;
                         const numB = parseInt(b) || 0;
                         return numA - numB;
                     });
                     
-                    playerIds.forEach((playerId, index) => {
+                    playerIds.forEach(playerId => {
                         const playerStats = state.attackersStats.players[playerId];
                         if (!playerStats) return;
                         
-                        const totalShots = playerStats.shots || 0;
+                        const shots = playerStats.shots || 0;
                         const goals = playerStats.goals || 0;
                         const saves = playerStats.saves || 0;
                         const misses = playerStats.misses || 0;
-                        const accuracy = totalShots > 0 ? Math.round((goals / totalShots) * 100) : 0;
+                        const accuracy = shots > 0 ? Math.round((goals / shots) * 100) : 0;
                         
-                        // Fondo alternado
-                        if (index % 2 === 0) {
-                            doc.setFillColor(240, 240, 240);
-                            doc.rect(10, yPos, pageWidth - 20, 6, 'F');
-                        }
+                        // Sumar a totales
+                        totalPlayerShots += shots;
+                        totalPlayerGoals += goals;
+                        totalPlayerSaves += saves;
+                        totalPlayerMisses += misses;
                         
-                        doc.text(playerId, 15, yPos + 4.5);
-                        doc.text(totalShots.toString(), 45, yPos + 4.5);
-                        doc.text(goals.toString(), 75, yPos + 4.5);
-                        doc.text(saves.toString(), 105, yPos + 4.5);
-                        doc.text(misses.toString(), 135, yPos + 4.5);
-                        doc.text(`${accuracy}%`, 165, yPos + 4.5);
-                        
-                        yPos += 6;
-                    });
-                }
-                
-                // ============ PÁGINA DE EVENTOS ============
-                if (state.events.length > 0) {
-                    doc.addPage();
-                    yPos = 20;
-                    
-                    doc.setFontSize(16);
-                    doc.text("REGISTRO DE EVENTOS DEL PARTIDO", 10, yPos);
-                    yPos += 10;
-                    
-                    doc.setFontSize(10);
-                    
-                    state.events.forEach((event, index) => {
-                        if (yPos > pageHeight - 10) {
-                            doc.addPage();
-                            yPos = 20;
-                        }
-                        
-                        // Color según tipo de evento
-                        let eventColor = [0, 0, 0];
-                        if (event.actionType === 'save') eventColor = [5, 150, 105];
-                        if (event.actionType === 'goal') eventColor = [220, 38, 38];
-                        if (event.actionType === 'miss') eventColor = [245, 158, 11];
-                        
-                        doc.setTextColor(eventColor[0], eventColor[1], eventColor[2]);
-                        doc.text(`[${event.time}] ${event.playerName}: ${event.type}`, 10, yPos);
+                        doc.text(playerId.toString(), 25, yPos);
+                        doc.text(shots.toString(), 60, yPos);
+                        doc.text(goals.toString(), 85, yPos);
+                        doc.text(saves.toString(), 110, yPos);
+                        doc.text(misses.toString(), 140, yPos);
+                        doc.text(`${accuracy}%`, 165, yPos);
                         
                         yPos += 7;
                     });
+                    
+                    // Fila de totales
+                    doc.line(20, yPos, 190, yPos);
+                    yPos += 5;
+                    
+                    doc.setFont("helvetica", "bold");
+                    const totalAccuracy = totalPlayerShots > 0 ? Math.round((totalPlayerGoals / totalPlayerShots) * 100) : 0;
+                    
+                    doc.text("TOTAL", 25, yPos);
+                    doc.text(totalPlayerShots.toString(), 60, yPos);
+                    doc.text(totalPlayerGoals.toString(), 85, yPos);
+                    doc.text(totalPlayerSaves.toString(), 110, yPos);
+                    doc.text(totalPlayerMisses.toString(), 140, yPos);
+                    doc.text(`${totalAccuracy}%`, 165, yPos);
+                    
+                    yPos += 15;
                 }
                 
-                // Pie de página final
-                doc.addPage();
-                doc.setFontSize(14);
-                doc.setTextColor(40, 53, 147);
-                doc.text("ANÁLISIS COMPLETO FINALIZADO", pageWidth / 2, pageHeight / 2 - 10, { align: "center" });
+                // Resumen
+                doc.setFontSize(12);
+                doc.setTextColor(60, 60, 60);
+                doc.text("Hoquei Palau Solita i Plegamants | Sistema de Análisis Táctico", 105, yPos + 10, null, null, "center");
                 
-                doc.setFontSize(11);
-                doc.setTextColor(100, 100, 100);
-                doc.text("Reporte generado automáticamente por el Sistema de Portería Visual", pageWidth / 2, pageHeight / 2 + 10, { align: "center" });
+                // Guardar el PDF
+                const fileName = `estadisticas_porteria_${now.toISOString().slice(0, 10)}_${now.getHours()}${now.getMinutes()}.pdf`;
+                doc.save(fileName);
                 
-                // Guardar PDF y mostrar vista previa
-                const pdfBlob = doc.output('blob');
-                const pdfUrl = URL.createObjectURL(pdfBlob);
+                addEventMessage(`<span style="color: #7c3aed"><i class="fas fa-check-circle"></i> PDF generado y descargado: ${fileName}</span>`);
                 
-                // Guardar referencia para descargas posteriores
-                state.lastGeneratedPDF = doc;
-                state.pdfBlob = pdfBlob;
-                
-                // Mostrar vista previa
-                $("pdf-preview").style.display = "block";
-                const pdfViewer = $("pdf-viewer");
-                pdfViewer.src = pdfUrl;
-                pdfViewer.style.display = "block";
-                
-                // Desplazar a la vista previa
-                $("pdf-preview").scrollIntoView({ behavior: 'smooth' });
-                
-                addEventMessage(`<span style="color: #7c3aed"><i class="fas fa-check-circle"></i> PDF generado con gráficas automáticas</span>`);
-                
-            }, 500);
-        }
-        
-        // Función para crear datos de gráficas
-        function generateChartsData() {
-            const data = {
-                shotsDistribution: [
-                    state.goalkeeperStats.totalSaves,
-                    state.goalkeeperStats.totalGoals,
-                    state.goalkeeperStats.totalMisses
-                ],
-                zoneLabels: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'],
-                zoneEffectiveness: [],
-                playersLabels: [],
-                playersData: []
-            };
-            
-            // Calcular efectividad por zona
-            data.zoneLabels.forEach(zone => {
-                const stats = state.goalkeeperStats.zones[zone];
-                const total = stats.saves + stats.goals;
-                const effectiveness = total > 0 ? Math.round((stats.saves / total) * 100) : 0;
-                data.zoneEffectiveness.push(effectiveness);
-            });
-            
-            // Datos de jugadores (solo los que tienen tiros)
-            const playerIds = state.playerNumbers.sort((a, b) => {
-                const numA = parseInt(a) || 0;
-                const numB = parseInt(b) || 0;
-                return numA - numB;
-            });
-            
-            playerIds.forEach(playerId => {
-                const playerStats = state.attackersStats.players[playerId];
-                if (playerStats && playerStats.shots > 0) {
-                    data.playersLabels.push(`J${playerId}`);
-                    data.playersData.push(playerStats.goals || 0);
-                }
-            });
-            
-            return data;
-        }
-        
-        // Función para crear canvas de gráfica
-        function createChartCanvas(type, data, labels, colors, title) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 400;
-            canvas.height = 300;
-            
-            const ctx = canvas.getContext('2d');
-            
-            // Configurar gráfica según tipo
-            let chartConfig = {
-                type: type,
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors,
-                        borderColor: colors.map(c => c.replace(')', ', 0.8)').replace('rgb', 'rgba')),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: title,
-                            font: { size: 14, weight: 'bold' }
-                        },
-                        legend: {
-                            display: type === 'pie',
-                            position: 'right'
-                        }
-                    }
-                }
-            };
-            
-            // Configuraciones específicas por tipo
-            if (type === 'bar' || type === 'horizontalBar') {
-                chartConfig.options.scales = {
-                    y: {
-                        beginAtZero: true,
-                        max: type === 'bar' ? 100 : Math.max(...data) + 2
-                    }
-                };
-            }
-            
-            new Chart(ctx, chartConfig);
-            
-            return canvas;
-        }
-        
-        // ---------- FUNCIONALIDAD DE EMAIL ----------
-        function showEmailModal() {
-            // Generar PDF primero si no hay uno reciente
-            if (!state.lastGeneratedPDF) {
-                generatePDF();
-                setTimeout(showEmailModal, 1000);
-                return;
-            }
-            
-            $("email-modal").style.display = "flex";
-        }
-        
-        function sendEmail() {
-            const emailTo = $("email-to").value;
-            const emailSubject = $("email-subject").value;
-            const emailMessage = $("email-message").value;
-            
-            if (!emailTo || !emailTo.includes('@')) {
-                alert('Por favor, introduce un email válido');
-                return;
-            }
-            
-            addEventMessage(`<span style="color: #ea580c"><i class="fas fa-spinner fa-spin"></i> Preparando envío de email...</span>`);
-            
-            // En un entorno real, aquí iría la llamada a un servidor
-            // Para este ejemplo, simulamos el envío
-            setTimeout(() => {
-                // Crear enlace de correo
-                const subject = encodeURIComponent(emailSubject);
-                const body = encodeURIComponent(`${emailMessage}\n\n---\nAdjunto: Reporte de Estadísticas de Portería\nFecha: ${new Date().toLocaleDateString()}`);
-                
-                // Simular envío (en realidad abriría el cliente de email)
-                const mailtoLink = `mailto:${emailTo}?subject=${subject}&body=${body}`;
-                
-                // Mostrar opción para abrir cliente de email
-                if (confirm(`¿Deseas abrir tu cliente de email para enviar el reporte a ${emailTo}?\n\nNota: Debes adjuntar manualmente el PDF generado.`)) {
-                    window.open(mailtoLink, '_blank');
-                }
-                
-                addEventMessage(`<span style="color: #059669"><i class="fas fa-check-circle"></i> Email preparado para ${emailTo}</span>`);
-                hideEmailModal();
-                
-            }, 1500);
-        }
-        
-        function hideEmailModal() {
-            $("email-modal").style.display = "none";
-            $("email-to").value = "";
-            $("email-message").value = "";
-        }
-        
-        function downloadPDF() {
-            if (state.lastGeneratedPDF) {
-                const dateStr = new Date().toISOString().split('T')[0];
-                state.lastGeneratedPDF.save(`porteria_estadisticas_${dateStr}.pdf`);
-                addEventMessage(`<span style="color: #059669"><i class="fas fa-download"></i> PDF descargado exitosamente</span>`);
-            }
-        }
-        
-        function sharePDF() {
-            if (state.pdfBlob && navigator.share) {
-                // Compartir usando Web Share API
-                const file = new File([state.pdfBlob], `porteria_estadisticas_${new Date().toISOString().split('T')[0]}.pdf`, {
-                    type: 'application/pdf'
-                });
-                
-                navigator.share({
-                    files: [file],
-                    title: 'Estadísticas de Portería',
-                    text: 'Reporte completo de estadísticas de portería generado automáticamente'
-                })
-                .then(() => addEventMessage(`<span style="color: #059669"><i class="fas fa-share-alt"></i> PDF compartido exitosamente</span>`))
-                .catch(err => {
-                    console.error('Error sharing:', err);
-                    // Fallback: descargar
-                    downloadPDF();
-                });
-            } else {
-                // Fallback: mostrar opciones de descarga
-                downloadPDF();
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Error al generar PDF. Verifica que hayas registrado datos primero.</span>`);
             }
         }
         
@@ -1995,7 +1596,7 @@
             $("outside-btn-attack").addEventListener("click", () => registerAttackAction('miss'));
             
             // Configurar botón de reset
-            $("reset-btn").addEventListener("click", resetZoneAction);
+            $("reset-btn").addEventListener("click", resetLastAction);
             
             // Configurar agregar jugador
             $("add-player-btn").addEventListener("click", addPlayer);
@@ -2003,28 +1604,14 @@
                 if (e.key === 'Enter') addPlayer();
             });
             
-            // Configurar botones de PDF
+            // Configurar botón de PDF
             $("pdf-btn").addEventListener("click", generatePDF);
-            $("download-pdf-btn").addEventListener("click", downloadPDF);
-            $("share-pdf-btn").addEventListener("click", sharePDF);
-            
-            // Configurar botón de email
-            $("email-btn").addEventListener("click", showEmailModal);
-            
-            // Configurar modal de email
-            $("cancel-email-btn").addEventListener("click", hideEmailModal);
-            $("send-email-btn").addEventListener("click", sendEmail);
-            
-            // Cerrar modal al hacer clic fuera
-            $("email-modal").addEventListener("click", function(e) {
-                if (e.target === this) hideEmailModal();
-            });
             
             // Mensaje inicial
             setTimeout(() => {
                 addEventMessage(`<span style="color: #3498db"><i class="fas fa-info-circle"></i> Sistema de Portería Dual iniciado</span>`);
                 addEventMessage(`<span style="color: #3498db"><i class="fas fa-info-circle"></i> IZQUIERDA: Defensa (Portero) | DERECHA: Ataque (Jugadores)</span>`);
-                addEventMessage(`<span style="color: #3498db"><i class="fas fa-info-circle"></i> Los gráficos se generan automáticamente en el PDF</span>`);
+                addEventMessage(`<span style="color: #7c3aed"><i class="fas fa-info-circle"></i> Haz clic en "Generar PDF" para descargar el reporte</span>`);
             }, 500);
         });
     </script>
