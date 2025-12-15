@@ -1,190 +1,354 @@
-// ===== VARIABLES GLOBALES MEJORADAS =====
-let playersStats = {}; // Para estadísticas por jugador
-let teamTotals = { // Para totales del equipo
-    shots: 0,
-    goals: 0,
-    saves: 0,
-    misses: 0
-};
-
-// ===== FUNCIONES PARA ACTUALIZAR ESTADÍSTICAS =====
-
-function updatePlayerStats(playerNumber, shotType) {
-    if (!playersStats[playerNumber]) {
-        playersStats[playerNumber] = {
-            shots: 0,
-            goals: 0,
-            saves: 0,
-            misses: 0
-        };
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Sistema web para registrar y analizar estadísticas de portería en deportes">
+    <meta name="keywords" content="portería, estadísticas, hockey, deportes, análisis táctico">
+    <meta name="author" content="Hoquei Palau Solita i Plegamants">
     
-    // Actualizar estadísticas del jugador
-    switch(shotType) {
-        case 'goal':
-            playersStats[playerNumber].shots++;
-            playersStats[playerNumber].goals++;
-            teamTotals.shots++;
-            teamTotals.goals++;
-            break;
-        case 'save':
-            playersStats[playerNumber].shots++;
-            playersStats[playerNumber].saves++;
-            teamTotals.shots++;
-            teamTotals.saves++;
-            break;
-        case 'miss':
-            playersStats[playerNumber].shots++;
-            playersStats[playerNumber].misses++;
-            teamTotals.shots++;
-            teamTotals.misses++;
-            break;
-    }
+    <title>Sistema de Estadísticas de Portería</title>
     
-    // Actualizar tabla de jugadores
-    updatePlayersStatsTable();
-    
-    // Actualizar resumen
-    updateSummaryStats();
-}
-
-function updatePlayersStatsTable() {
-    const tbody = document.getElementById('players-stats-body');
-    tbody.innerHTML = '';
-    
-    // Calcular totales para la fila de equipo
-    let totalShots = 0;
-    let totalGoals = 0;
-    let totalSaves = 0;
-    let totalMisses = 0;
-    
-    // Crear filas para cada jugador
-    Object.keys(playersStats).sort().forEach(playerNumber => {
-        const stats = playersStats[playerNumber];
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-futbol"></i> Sistema de Estadísticas de Portería</h1>
+            <p class="subtitle">Análisis Táctico en Tiempo Real</p>
+        </header>
         
-        totalShots += stats.shots;
-        totalGoals += stats.goals;
-        totalSaves += stats.saves;
-        totalMisses += stats.misses;
+        <div class="content">
+            <div class="goals-container">
+                <!-- Sección DEFENSA -->
+                <div class="goal-section defense">
+                    <div class="goal-section-header">
+                        <i class="fas fa-shield-alt" style="color: #3498db; font-size: 1.2rem;"></i>
+                        <div class="goal-section-title defense">DEFENSA</div>
+                    </div>
+                    
+                    <div class="goal-visual-container">
+                        <div id="goal-grid-defense" class="goal-grid"></div>
+                        
+                        <div id="zone-buttons-defense" class="zone-buttons"></div>
+                        
+                        <button id="outside-btn-defense" class="outside-btn">
+                            <i class="fas fa-external-link-alt"></i> Tiro Fuera de Portería
+                        </button>
+                        
+                        <div id="selection-info-defense" class="selection-info defense">
+                            Selecciona una zona para registrar acción del portero
+                        </div>
+                        
+                        <div class="controls">
+                            <button id="save-btn-defense" class="control-btn save-btn">
+                                <i class="fas fa-hand-paper"></i> Parada
+                            </button>
+                            <button id="goal-btn-defense" class="control-btn goal-btn">
+                                <i class="fas fa-bullseye"></i> Gol Recibido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sección ATAQUE -->
+                <div class="goal-section attack">
+                    <div class="goal-section-header">
+                        <i class="fas fa-bullseye" style="color: #059669; font-size: 1.2rem;"></i>
+                        <div class="goal-section-title attack">ATAQUE</div>
+                    </div>
+                    
+                    <div class="goal-visual-container">
+                        <div id="goal-grid-attack" class="goal-grid"></div>
+                        
+                        <div id="zone-buttons-attack" class="zone-buttons"></div>
+                        
+                        <button id="outside-btn-attack" class="outside-btn">
+                            <i class="fas fa-external-link-alt"></i> Tiro Fuera de Portería
+                        </button>
         
-        const accuracy = stats.shots > 0 ? 
-            Math.round((stats.goals / stats.shots) * 100) : 0;
-        
-        const row = document.createElement('tr');
-        
-        // Determinar clase de porcentaje
-        let accuracyClass = '';
-        if (accuracy >= 50) accuracyClass = 'high-accuracy';
-        else if (accuracy >= 25) accuracyClass = 'medium-accuracy';
-        else accuracyClass = 'low-accuracy';
-        
-        row.innerHTML = `
-            <td><strong>Jugador ${playerNumber}</strong></td>
-            <td>${stats.shots}</td>
-            <td>${stats.goals}</td>
-            <td>${stats.saves}</td>
-            <td>${stats.misses}</td>
-            <td class="${accuracyClass}">${accuracy}%</td>
-        `;
-        
-        tbody.appendChild(row);
-    });
-    
-    // Actualizar totales en el tfoot
-    const teamAccuracy = totalShots > 0 ? 
-        Math.round((totalGoals / totalShots) * 100) : 0;
-    
-    document.getElementById('total-team-shots').textContent = totalShots;
-    document.getElementById('total-team-goals').textContent = totalGoals;
-    document.getElementById('total-team-saves').textContent = totalSaves;
-    document.getElementById('total-team-misses').textContent = totalMisses;
-    document.getElementById('total-team-accuracy').textContent = `${teamAccuracy}%`;
-    
-    // Actualizar variables globales
-    teamTotals.shots = totalShots;
-    teamTotals.goals = totalGoals;
-    teamTotals.saves = totalSaves;
-    teamTotals.misses = totalMisses;
-}
-
-function updateSummaryStats() {
-    // Actualizar valores del resumen
-    document.getElementById('total-shots').textContent = teamTotals.shots;
-    document.getElementById('total-goals').textContent = teamTotals.goals;
-    document.getElementById('total-saves-summary').textContent = teamTotals.saves;
-    
-    // Calcular efectividad del equipo
-    const teamEffectiveness = teamTotals.shots > 0 ? 
-        Math.round((teamTotals.goals / teamTotals.shots) * 100) : 0;
-    document.getElementById('team-effectiveness').textContent = `${teamEffectiveness}%`;
-    
-    // Calcular efectividad del portero
-    const goalkeeperShots = teamTotals.goals + teamTotals.saves;
-    const goalkeeperEffectiveness = goalkeeperShots > 0 ? 
-        Math.round((teamTotals.saves / goalkeeperShots) * 100) : 0;
-    document.getElementById('goalkeeper-effectiveness').textContent = `${goalkeeperEffectiveness}%`;
-}
-
-// ===== FUNCIÓN PARA ELIMINAR ÚLTIMA ACCIÓN =====
-function removeLastAction() {
-    // Implementar lógica para eliminar la última acción registrada
-    // Esto debe actualizar tanto las estadísticas como la lista de eventos
-    
-    // Ejemplo básico:
-    if (events.length > 0) {
-        const lastEvent = events.pop();
-        
-        // Revertir estadísticas según el tipo de evento
-        if (lastEvent.player && playersStats[lastEvent.player]) {
-            const playerStats = playersStats[lastEvent.player];
+                        <!-- Selector de Jugadores -->
+                        <div class="player-selector">
+                            <div class="player-selector-container">
+                                <div class="player-input-container">
+                                    <input type="number" id="player-number-input" class="player-input" 
+                                           placeholder="Nº" min="1" max="99">
+                                    <button id="add-player-btn" class="add-player-btn">
+                                        <i class="fas fa-plus"></i> Agregar
+                                    </button>
+                                </div>
+                                <div id="player-input-error" class="error-message"></div>
+                                
+                                <div class="player-buttons-container" id="player-buttons-container"></div>
+                                
+                                <div class="player-selector-info">
+                                    Máximo 8 jugadores. Haz clic para seleccionar.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="selection-info-attack" class="selection-info attack">
+                            Selecciona un jugador y una zona para registrar tiro
+                        </div>
+                        
+                        <div class="controls">
+                            <button id="goal-btn-attack" class="control-btn goal-btn">
+                                <i class="fas fa-bullseye"></i> Gol
+                            </button>
+                            <button id="save-btn-attack" class="control-btn save-btn">
+                                <i class="fas fa-hand-paper"></i> Parado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            switch(lastEvent.type) {
-                case 'goal':
-                    playerStats.shots--;
-                    playerStats.goals--;
-                    teamTotals.shots--;
-                    teamTotals.goals--;
-                    break;
-                case 'save':
-                    playerStats.shots--;
-                    playerStats.saves--;
-                    teamTotals.shots--;
-                    teamTotals.saves--;
-                    break;
-                case 'miss':
-                    playerStats.shots--;
-                    playerStats.misses--;
-                    teamTotals.shots--;
-                    teamTotals.misses--;
-                    break;
-            }
+            <!-- Controles Globales -->
+            <div class="global-controls">
+                <button id="reset-btn" class="global-btn reset-btn">
+                    <i class="fas fa-undo"></i> Eliminar Última Acción
+                </button>
+                <button id="clear-all-btn" class="global-btn clear-btn">
+                    <i class="fas fa-trash-alt"></i> Limpiar Todo
+                </button>
+                <button id="pdf-btn" class="global-btn pdf-btn">
+                    <i class="fas fa-file-pdf"></i> Generar PDF
+                </button>
+                <button id="email-btn" class="global-btn email-btn">
+                    <i class="fas fa-paper-plane"></i> Enviar por Email
+                </button>
+            </div>
             
-            // Si el jugador no tiene más estadísticas, eliminarlo
-            if (playerStats.shots === 0) {
-                delete playersStats[lastEvent.player];
-            }
-        }
+            <!-- RESUMEN MEJORADO -->
+            <div class="summary-section">
+                <div class="section-title">
+                    <i class="fas fa-chart-line"></i> Resumen Estadístico del Partido
+                </div>
+                
+                <div class="summary-grid">
+                    <div class="summary-card highlight">
+                        <div class="summary-icon">
+                            <i class="fas fa-crosshairs"></i>
+                        </div>
+                        <div class="summary-content">
+                            <div class="summary-value" id="total-shots">0</div>
+                            <div class="summary-label">Tiros Totales</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                        <div class="summary-content">
+                            <div class="summary-value" id="total-goals">0</div>
+                            <div class="summary-label">Goles Totales</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-hand-paper"></i>
+                        </div>
+                        <div class="summary-content">
+                            <div class="summary-value" id="total-saves-summary">0</div>
+                            <div class="summary-label">Paradas Totales</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card highlight">
+                        <div class="summary-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="summary-content">
+                            <div class="summary-value" id="team-effectiveness">0%</div>
+                            <div class="summary-label">Efectividad del Equipo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estadísticas del Portero -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-shield-alt"></i> Estadísticas del Portero
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="goalkeeper-saves">0</div>
+                            <div class="stat-label">Paradas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="goalkeeper-goals">0</div>
+                            <div class="stat-label">Goles Recibidos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="goalkeeper-misses">0</div>
+                            <div class="stat-label">Tiros Fuera</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="goalkeeper-effectiveness">0%</div>
+                            <div class="stat-label">Efectividad Portero</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estadísticas por Jugador con TOTALES -->
+            <div class="section" id="players-stats-section">
+                <div class="section-title">
+                    <i class="fas fa-users"></i> Estadísticas por Jugador (Ataque)
+                </div>
+                
+                <div class="stats-container">
+                    <div class="table-container">
+                        <table class="players-stats-table">
+                            <thead>
+                                <tr>
+                                    <th>Jugador</th>
+                                    <th><i class="fas fa-crosshairs"></i> Tiros</th>
+                                    <th><i class="fas fa-futbol"></i> Goles</th>
+                                    <th><i class="fas fa-hand-paper"></i> Parados</th>
+                                    <th><i class="fas fa-external-link-alt"></i> Fuera</th>
+                                    <th><i class="fas fa-percentage"></i> % Acierto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="players-stats-body">
+                                <!-- Las filas se generarán dinámicamente -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="team-total-row">
+                                    <td><strong><i class="fas fa-users"></i> TOTAL EQUIPO</strong></td>
+                                    <td id="total-team-shots">0</td>
+                                    <td id="total-team-goals">0</td>
+                                    <td id="total-team-saves">0</td>
+                                    <td id="total-team-misses">0</td>
+                                    <td id="total-team-accuracy">0%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Eventos del Partido -->
+            <div class="section" id="events-section">
+                <div class="section-title">
+                    <i class="fas fa-history"></i> Historial de Eventos
+                </div>
+                
+                <div class="events-container">
+                    <div id="events-list" class="events-list"></div>
+                </div>
+            </div>
+            
+            <!-- Gráficas ocultas para PDF -->
+            <div id="pdf-charts" style="display: none;">
+                <canvas id="shotsChartPDF" width="800" height="400"></canvas>
+                <canvas id="zoneEffectivenessChartPDF" width="800" height="400"></canvas>
+                <canvas id="playersChartPDF" width="800" height="400"></canvas>
+                <canvas id="heatmapChartPDF" width="800" height="400"></canvas>
+            </div>
+        </div>
         
-        // Actualizar interfaces
-        updatePlayersStatsTable();
-        updateSummaryStats();
-        updateEventsList();
-        
-        // Mostrar confirmación
-        showNotification('Última acción eliminada correctamente', 'success');
-    } else {
-        showNotification('No hay acciones para eliminar', 'warning');
-    }
-}
+        <footer>
+            <div class="footer-content">
+                <p>Hoquei Palau Solita i Plegamants | Sistema de Análisis Táctico</p>
+                <p class="footer-info">
+                    <i class="fas fa-clock"></i> 
+                    <span id="current-time">--:--</span> | 
+                    <span id="session-duration">Duración: 00:00</span>
+                </p>
+                <p class="github-link">
+                    <i class="fab fa-github"></i> 
+                    <a href="https://github.com/tuusuario/estadisticas-porteria" target="_blank" rel="noopener noreferrer">
+                        Ver en GitHub
+                    </a>
+                </p>
+            </div>
+        </footer>
+    </div>
 
-// ===== INICIALIZACIÓN =====
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar tabla con datos vacíos
-    updatePlayersStatsTable();
-    updateSummaryStats();
+    <!-- Modal para Email -->
+    <div id="email-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-paper-plane"></i> Enviar Estadísticas por Email
+                </div>
+                <button class="modal-close-btn" id="close-email-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="email-to">
+                        <i class="fas fa-envelope"></i> Email Destinatario:
+                    </label>
+                    <input type="email" id="email-to" class="form-input" 
+                           placeholder="ejemplo@correo.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email-subject">
+                        <i class="fas fa-tag"></i> Asunto:
+                    </label>
+                    <input type="text" id="email-subject" class="form-input" 
+                           value="Estadísticas de Portería - Reporte" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email-message">
+                        <i class="fas fa-comment"></i> Mensaje:
+                    </label>
+                    <textarea id="email-message" class="form-input" rows="4" 
+                              placeholder="Mensaje opcional..."></textarea>
+                </div>
+                
+                <div class="form-info">
+                    <i class="fas fa-info-circle"></i>
+                    Se adjuntará un PDF con las estadísticas completas.
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="cancel-email-btn" class="modal-btn cancel">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="send-email-btn" class="modal-btn send">
+                    <i class="fas fa-paper-plane"></i> Enviar Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content confirm-modal">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="modal-message" id="confirm-message">
+                ¿Estás seguro de que quieres realizar esta acción?
+            </div>
+            <div class="modal-buttons">
+                <button id="confirm-cancel-btn" class="modal-btn cancel">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="confirm-ok-btn" class="modal-btn ok">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    // Configurar botón de eliminar última acción
-    document.getElementById('reset-btn').addEventListener('click', removeLastAction);
-    
-    // El resto de la inicialización del sistema...
-});
+    <script src="script.js"></script>
+</body>
+</html>
