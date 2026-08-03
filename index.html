@@ -1659,11 +1659,19 @@
                 return;
             }
             
+            if (location.protocol === 'file:') {
+                addEventMessage(`<span style="color: #f59e0b"><i class="fas fa-exclamation-triangle"></i> Estás abriendo el archivo en local (file://). Los comandos de voz solo funcionan si la página está en GitHub Pages (https://) o en un servidor. No funcionará con doble clic al archivo.</span>`);
+            }
+            
             recognition = new SpeechRecognition();
             recognition.lang = 'es-ES';
             recognition.continuous = true;
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
+            
+            recognition.onstart = () => {
+                addEventMessage(`<span style="color: #059669"><i class="fas fa-microphone"></i> Micrófono activo, habla ahora</span>`);
+            };
             
             recognition.onresult = (event) => {
                 const last = event.results.length - 1;
@@ -1673,7 +1681,22 @@
             
             recognition.onerror = (event) => {
                 if (event.error === 'no-speech' || event.error === 'aborted') return;
-                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Error de voz: ${event.error}</span>`);
+                
+                let msg = `Error de voz: ${event.error}`;
+                if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+                    msg = 'Permiso de micrófono denegado. Pulsa el icono de candado/micrófono en la barra de direcciones y permite el acceso al micrófono para esta página, luego recarga.';
+                    isListening = false;
+                    const btn = $("voice-btn");
+                    if (btn) {
+                        btn.classList.remove('listening');
+                        btn.innerHTML = '<i class="fas fa-microphone"></i> Comandos de Voz';
+                    }
+                } else if (event.error === 'audio-capture') {
+                    msg = 'No se detecta ningún micrófono en este dispositivo.';
+                } else if (event.error === 'network') {
+                    msg = 'Error de red. El reconocimiento de voz necesita conexión a internet.';
+                }
+                addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> ${msg}</span>`);
             };
             
             recognition.onend = () => {
@@ -1698,11 +1721,16 @@
                 btn.innerHTML = '<i class="fas fa-microphone"></i> Comandos de Voz';
                 addEventMessage(`<span style="color: #6b7280"><i class="fas fa-microphone-slash"></i> Comandos de voz desactivados</span>`);
             } else {
-                isListening = true;
-                recognition.start();
-                btn.classList.add('listening');
-                btn.innerHTML = '<i class="fas fa-microphone"></i> Escuchando...';
-                addEventMessage(`<span style="color: #3498db"><i class="fas fa-microphone"></i> Comandos de voz activados. Di "ayuda" para ver los comandos.</span>`);
+                try {
+                    isListening = true;
+                    recognition.start();
+                    btn.classList.add('listening');
+                    btn.innerHTML = '<i class="fas fa-microphone"></i> Escuchando...';
+                    addEventMessage(`<span style="color: #3498db"><i class="fas fa-microphone"></i> Comandos de voz activados. Di "ayuda" para ver los comandos.</span>`);
+                } catch (e) {
+                    isListening = false;
+                    addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> No se pudo iniciar el micrófono: ${e.message}</span>`);
+                }
             }
         }
 
