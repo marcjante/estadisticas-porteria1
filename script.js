@@ -770,6 +770,148 @@ function generatePDF() {
     }
 }
 
+// ---------- COMANDOS DE VOZ ----------
+let recognition = null;
+let isListening = false;
+
+const numberWords = {
+    'cero': '0', 'uno': '1', 'una': '1', 'dos': '2', 'tres': '3', 'cuatro': '4',
+    'cinco': '5', 'seis': '6', 'siete': '7', 'ocho': '8', 'nueve': '9', 'diez': '10'
+};
+
+function normalizeTranscript(text) {
+    let t = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    Object.keys(numberWords).forEach(word => {
+        t = t.replace(new RegExp(`\\b${word}\\b`, 'g'), numberWords[word]);
+    });
+    return t;
+}
+
+function extractZone(text) {
+    // Detecta patrones como "a1", "a 1", "be 2" (confusión de "b"), "ce 3" (confusión de "c")
+    const match = text.match(/\b(a|b|c|be|ce|se)\s*-?\s*([1-3])\b/);
+    if (!match) return null;
+    let letter = match[1];
+    if (letter === 'be') letter = 'b';
+    if (letter === 'ce' || letter === 'se') letter = 'c';
+    return `${letter.toUpperCase()}${match[2]}`;
+}
+
+function extractPlayerNumber(text) {
+    const match = text.match(/jugador\s+(\d{1,2})/);
+    return match ? match[1] : null;
+}
+
+function initVoiceRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+        addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Este navegador no soporta comandos de voz. Usa Chrome (Android o escritorio).</span>`);
+        return;
+    }
+    
+    recognition = new SpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    
+    recognition.onresult = (event) => {
+        const last = event.results.length - 1;
+        const transcript = event.results[last][0].transcript;
+        handleVoiceCommand(transcript);
+    };
+    
+    recognition.onerror = (event) => {
+        if (event.error === 'no-speech' || event.error === 'aborted') return;
+        addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Error de voz: ${event.error}</span>`);
+    };
+    
+    recognition.onend = () => {
+        if (isListening) {
+            try { recognition.start(); } catch (e) { /* ya estaba iniciado */ }
+        }
+    };
+}
+
+function toggleVoiceRecognition() {
+    if (!recognition) {
+        addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Reconocimiento de voz no disponible en este navegador</span>`);
+        return;
+    }
+    
+    const btn = $("voice-btn");
+    
+    if (isListening) {
+        isListening = false;
+        recognition.stop();
+        btn.classList.remove('listening');
+        btn.innerHTML = '<i class="fas fa-microphone"></i> Comandos de Voz';
+        addEventMessage(`<span style="color: #6b7280"><i class="fas fa-microphone-slash"></i> Comandos de voz desactivados</span>`);
+    } else {
+        isListening = true;
+        recognition.start();
+        btn.classList.add('listening');
+        btn.innerHTML = '<i class="fas fa-microphone"></i> Escuchando...';
+        addEventMessage(`<span style="color: #3498db"><i class="fas fa-microphone"></i> Comandos de voz activados. Di "ayuda" para ver los comandos.</span>`);
+    }
+}
+
+function handleVoiceCommand(rawText) {
+    const text = normalizeTranscript(rawText);
+    
+    addEventMessage(`<span style="color: #7f8c8d"><i class="fas fa-comment"></i> Escuchado: "${rawText}"</span>`);
+    
+    if (/deshacer|elimina|borra|quita/.test(text)) {
+        resetLastAction();
+        return;
+    }
+    
+    if (/pdf/.test(text)) {
+        generatePDF();
+        return;
+    }
+    
+    if (/ayuda|comandos/.test(text)) {
+        addEventMessage(`<span style="color: #3498db"><i class="fas fa-info-circle"></i> Defensa: "parada zona a1", "gol recibido zona b2", "fuera portero". Ataque: "jugador 5 zona a1 gol", "jugador 5 parado", "jugador 5 fuera". Global: "deshacer", "pdf".</span>`);
+        return;
+    }
+    
+    const zone = extractZone(text);
+    const playerNumber = extractPlayerNumber(text);
+    
+    // Si se menciona un jugador, se interpreta como acción de ataque
+    if (playerNumber) {
+        if (!state.playerNumbers.includes(playerNumber)) {
+            addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Jugador ${playerNumber} no está agregado. Añádelo primero.</span>`);
+            return;
+        }
+        
+        selectPlayer(playerNumber);
+        if (zone) selectZone('attack', zone);
+        
+        if (/fuera/.test(text)) {
+            registerAttackAction('miss');
+        } else if (/\bgol\b/.test(text)) {
+            registerAttackAction('goal');
+        } else if (/parad[oa]/.test(text)) {
+            registerAttackAction('save');
+        }
+        return;
+    }
+    
+    // Sin jugador mencionado: se interpreta como acción de defensa (portero)
+    if (zone) selectZone('defense', zone);
+    
+    if (/fuera/.test(text)) {
+        registerDefenseAction('miss');
+    } else if (/gol/.test(text)) {
+        registerDefenseAction('goal');
+    } else if (/parad[oa]/.test(text)) {
+        registerDefenseAction('save');
+    }
+}
+
 // ---------- INICIALIZACIÓN ----------
 document.addEventListener("DOMContentLoaded", function() {
     // Crear las porterías visuales
@@ -796,6 +938,10 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Configurar botón de PDF
     $("pdf-btn").addEventListener("click", generatePDF);
+    
+    // Configurar comandos de voz
+    initVoiceRecognition();
+    $("voice-btn").addEventListener("click", toggleVoiceRecognition);
     
     // Mensaje inicial
     setTimeout(() => {
