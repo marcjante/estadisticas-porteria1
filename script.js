@@ -798,8 +798,12 @@ function extractZone(text) {
 }
 
 function extractPlayerNumber(text) {
-    const match = text.match(/jugador\s+(\d{1,2})/);
+    const match = text.match(/(?:jugador|numero)\s+(\d{1,2})/);
     return match ? match[1] : null;
+}
+
+function isDefenseMention(text) {
+    return /\bportero\b|\bportera\b/.test(text);
 }
 
 function initVoiceRecognition() {
@@ -901,14 +905,29 @@ function handleVoiceCommand(rawText) {
     }
     
     if (/ayuda|comandos/.test(text)) {
-        addEventMessage(`<span style="color: #3498db"><i class="fas fa-info-circle"></i> Defensa: "parada zona a1", "gol recibido zona b2", "fuera portero". Ataque: "jugador 5 zona a1 gol", "jugador 5 parado", "jugador 5 fuera". Global: "deshacer", "pdf".</span>`);
+        addEventMessage(`<span style="color: #3498db"><i class="fas fa-info-circle"></i> Ataque (siempre por defecto): "jugador 5 zona a1 gol" o "numero 5 parado". Defensa (solo si dices "portero"): "portero parada zona a1" o "portera gol recibido zona b2". Global: "deshacer", "pdf".</span>`);
         return;
     }
     
     const zone = extractZone(text);
+    
+    // "portero"/"portera" mencionado -> SIEMPRE defensa, tenga o no número de jugador
+    if (isDefenseMention(text)) {
+        if (zone) selectZone('defense', zone);
+        
+        if (/fuera/.test(text)) {
+            registerDefenseAction('miss');
+        } else if (/gol/.test(text)) {
+            registerDefenseAction('goal');
+        } else if (/parad[oa]/.test(text)) {
+            registerDefenseAction('save');
+        }
+        return;
+    }
+    
+    // Sin "portero"/"portera": TODOS los jugadores de campo son ataque por defecto
     const playerNumber = extractPlayerNumber(text);
     
-    // Si se menciona un jugador, se interpreta como acción de ataque
     if (playerNumber) {
         if (!state.playerNumbers.includes(playerNumber)) {
             addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> Jugador ${playerNumber} no está agregado. Añádelo primero.</span>`);
@@ -928,16 +947,8 @@ function handleVoiceCommand(rawText) {
         return;
     }
     
-    // Sin jugador mencionado: se interpreta como acción de defensa (portero)
-    if (zone) selectZone('defense', zone);
-    
-    if (/fuera/.test(text)) {
-        registerDefenseAction('miss');
-    } else if (/gol/.test(text)) {
-        registerDefenseAction('goal');
-    } else if (/parad[oa]/.test(text)) {
-        registerDefenseAction('save');
-    }
+    // No se ha entendido a qué jugador va: no se registra nada, nunca se asume defensa por defecto
+    addEventMessage(`<span style="color: #dc2626"><i class="fas fa-exclamation-circle"></i> No he identificado al jugador. Di "jugador N" o "numero N" (ataque), o "portero" (defensa). No he podido registrar: "${rawText}"</span>`);
 }
 
 // ---------- INICIALIZACIÓN ----------
